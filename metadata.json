@@ -1,0 +1,6 @@
+{
+  "name": "Valença & Alencar Advogados",
+  "description": "Escritório de advocacia de alto padrão especializado em consultoria e contencioso estratégico em São Paulo e Brasília. Excelência jurídica com ética e rigor técnico.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-bg-primary: #050505;
+    --color-bg-navy: #0D1930;
+    --color-gold: #C49335;
+    --color-gold-hover: #D8A546;
+    --color-offwhite: #F4F2ED;
+    --color-purewhite: #FFFFFF;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #050505;
+    color: #F4F2ED;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .font-serif-title {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+
+  .font-cinzel {
+    font-family: 'Cinzel', serif;
+  }
+}
+
+/* Custom Gold & Glass Utilities */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #FFE7B3 0%, #C49335 50%, #996A19 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-gradient-bg {
+  background: linear-gradient(135deg, #D4A345 0%, #C49335 60%, #B07E20 100%);
+}
+
+.gold-glow {
+  box-shadow: 0 0 25px rgba(196, 147, 53, 0.25);
+}
+
+.navy-card {
+  background-color: #0D1930;
+  border: 1px solid rgba(196, 147, 53, 0.12);
+}
+
+.navy-card-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.navy-card-hover:hover {
+  border-color: rgba(196, 147, 53, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(196, 147, 53, 0.08);
+}
+
+/* Subtle scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C49335;
+}
