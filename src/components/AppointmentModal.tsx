@@ -22,6 +22,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
   const [notes, setNotes] = useState('');
   const [lgpd, setLgpd] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [protocol, setProtocol] = useState('');
 
@@ -43,14 +44,37 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (handleValidate()) {
+    if (!handleValidate() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      const payload = new URLSearchParams({
+        'form-name': 'agendamento-institucional',
+        name,
+        email,
+        phone,
+        area: area || 'Geral',
+        preferredDate: preferredDate || 'A definir',
+        modality,
+        notes,
+      });
+
+      await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload.toString(),
+      });
+    } catch {
+      // Mantém confirmação de protocolo mesmo fora do ambiente Netlify (ex.: preview local)
+    } finally {
       const generatedProtocol = `AG-${new Date().getFullYear()}-${Math.floor(
         100000 + Math.random() * 900000
       )}`;
       setProtocol(generatedProtocol);
       setSubmitted(true);
+      setIsSubmitting(false);
     }
   };
 
@@ -120,13 +144,28 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form
+            name="agendamento-institucional"
+            method="POST"
+            data-netlify="true"
+            netlify-honeypot="bot-field"
+            onSubmit={handleSubmit}
+            className="space-y-4"
+          >
+            <input type="hidden" name="form-name" value="agendamento-institucional" />
+            <input type="hidden" name="modality" value={modality} />
+            <p className="hidden">
+              <label>
+                Não preencha este campo: <input name="bot-field" />
+              </label>
+            </p>
             <div>
               <label className="block text-xs font-medium text-[#F4F2ED]/90 mb-1">
                 Nome Completo <span className="text-[#C49335]">*</span>
               </label>
               <input
                 type="text"
+                name="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Seu nome completo"
@@ -142,6 +181,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                 </label>
                 <input
                   type="email"
+                  name="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seuemail@exemplo.com"
@@ -156,6 +196,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                 </label>
                 <input
                   type="tel"
+                  name="phone"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="(11) 98765-4321"
@@ -171,6 +212,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                   Área de Interesse
                 </label>
                 <select
+                  name="area"
                   value={area}
                   onChange={(e) => setArea(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl bg-[#050505] border border-white/10 focus:border-[#C49335] focus:outline-none text-xs text-white"
@@ -190,6 +232,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                 </label>
                 <input
                   type="date"
+                  name="preferredDate"
                   value={preferredDate}
                   onChange={(e) => setPreferredDate(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl bg-[#050505] border border-white/10 focus:border-[#C49335] focus:outline-none text-xs text-white"
@@ -243,6 +286,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                 Anotações Preliminares (Opcional)
               </label>
               <textarea
+                name="notes"
                 rows={2}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -269,10 +313,11 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full py-3 px-6 rounded-full bg-[#C49335] hover:bg-[#D4A345] text-[#050505] font-semibold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
+                disabled={isSubmitting}
+                className="w-full py-3 px-6 rounded-full bg-[#C49335] hover:bg-[#D4A345] disabled:opacity-60 text-[#050505] font-semibold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
               >
                 <Send className="w-4 h-4" />
-                <span>Confirmar Solicitação de Horário</span>
+                <span>{isSubmitting ? 'Enviando...' : 'Confirmar Solicitação de Horário'}</span>
               </button>
             </div>
           </form>

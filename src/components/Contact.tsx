@@ -25,6 +25,7 @@ export const Contact: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [protocolNumber, setProtocolNumber] = useState('');
 
@@ -47,14 +48,35 @@ export const Contact: React.FC = () => {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
+    if (!validate() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      const payload = new URLSearchParams({
+        'form-name': 'contato-institucional',
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        area: formData.area || 'Geral',
+        message: formData.message,
+      });
+
+      await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload.toString(),
+      });
+    } catch {
+      // Mantém confirmação de protocolo mesmo fora do ambiente Netlify (ex.: preview local)
+    } finally {
       const generatedProtocol = `VAL-${new Date().getFullYear()}-${Math.floor(
         100000 + Math.random() * 900000
       )}`;
       setProtocolNumber(generatedProtocol);
       setIsSubmitted(true);
+      setIsSubmitting(false);
     }
   };
 
@@ -302,7 +324,20 @@ export const Contact: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form
+                  name="contato-institucional"
+                  method="POST"
+                  data-netlify="true"
+                  netlify-honeypot="bot-field"
+                  onSubmit={handleSubmit}
+                  className="space-y-4"
+                >
+                  <input type="hidden" name="form-name" value="contato-institucional" />
+                  <p className="hidden">
+                    <label>
+                      Não preencha este campo: <input name="bot-field" />
+                    </label>
+                  </p>
                   {/* Name */}
                   <div>
                     <label className="block text-xs font-medium text-[#F4F2ED]/90 mb-1">
@@ -310,6 +345,7 @@ export const Contact: React.FC = () => {
                     </label>
                     <input
                       type="text"
+                      name="name"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="Ex: Dr. Roberto Guimarães ou Indústria Alpha S/A"
@@ -326,6 +362,7 @@ export const Contact: React.FC = () => {
                       </label>
                       <input
                         type="email"
+                        name="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="seuemail@empresa.com.br"
@@ -340,6 +377,7 @@ export const Contact: React.FC = () => {
                       </label>
                       <input
                         type="tel"
+                        name="phone"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="(11) 98765-4321"
@@ -355,6 +393,7 @@ export const Contact: React.FC = () => {
                       Área Jurídica Relacionada
                     </label>
                     <select
+                      name="area"
                       value={formData.area}
                       onChange={(e) => setFormData({ ...formData, area: e.target.value })}
                       className="w-full px-4 py-2.5 rounded-xl bg-[#050505] border border-white/10 focus:border-[#C49335] focus:outline-none text-xs text-white transition-colors cursor-pointer"
@@ -374,6 +413,7 @@ export const Contact: React.FC = () => {
                       Breve Síntese da Demanda <span className="text-[#C49335]">*</span>
                     </label>
                     <textarea
+                      name="message"
                       rows={4}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
@@ -403,10 +443,11 @@ export const Contact: React.FC = () => {
                   <div className="pt-2">
                     <button
                       type="submit"
-                      className="w-full py-3.5 px-6 rounded-full bg-[#C49335] hover:bg-[#D4A345] text-[#050505] font-semibold text-xs uppercase tracking-wider transition-all duration-200 shadow-xl hover:shadow-[#C49335]/30 cursor-pointer flex items-center justify-center gap-2"
+                      disabled={isSubmitting}
+                      className="w-full py-3.5 px-6 rounded-full bg-[#C49335] hover:bg-[#D4A345] disabled:opacity-60 text-[#050505] font-semibold text-xs uppercase tracking-wider transition-all duration-200 shadow-xl hover:shadow-[#C49335]/30 cursor-pointer flex items-center justify-center gap-2"
                     >
                       <Send className="w-4 h-4" />
-                      <span>Transmitir Mensagem Institucional</span>
+                      <span>{isSubmitting ? 'Transmitindo...' : 'Transmitir Mensagem Institucional'}</span>
                     </button>
                   </div>
                 </form>

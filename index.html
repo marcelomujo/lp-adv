@@ -52,6 +52,27 @@
   </head>
   <body class="bg-[#050505] text-[#F4F2ED] antialiased selection:bg-[#C49335] selection:text-[#050505]">
     <div id="root"></div>
+
+    <!-- Declaração estática para detecção automática dos formulários pelo Netlify Forms -->
+    <form name="contato-institucional" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="text" name="bot-field" />
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="tel" name="phone" />
+      <input type="text" name="area" />
+      <textarea name="message"></textarea>
+    </form>
+    <form name="agendamento-institucional" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="text" name="bot-field" />
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="tel" name="phone" />
+      <input type="text" name="area" />
+      <input type="text" name="preferredDate" />
+      <input type="text" name="modality" />
+      <textarea name="notes"></textarea>
+    </form>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

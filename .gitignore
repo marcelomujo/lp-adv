@@ -2,7 +2,11 @@ node_modules/
 build/
 dist/
 coverage/
+.netlify/
 .DS_Store
 *.log
+*.local
 .env*
 !.env.example
+.vscode/
+.idea/
